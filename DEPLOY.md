@@ -9,6 +9,8 @@ git branch -M main
 git push -u origin main
 ```
 
+이미 커밋까지 완료된 상태이므로, 원격만 추가한 뒤 `git push -u origin main` 하면 됩니다.
+
 ## 2. Vercel 배포
 
 ### 방법 A: Vercel 대시보드 (권장)
@@ -31,7 +33,9 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel --prod
 ```
 
-배포 후 나온 **Production URL** (예: `https://your-app.vercel.app`)을 아래 Supabase 설정에 사용합니다.
+배포 후 나온 **Production URL** (예: `https://your-app.vercel.app` 또는 `https://app-xxx.vercel.app`)을 아래 Supabase 설정에 사용합니다.
+
+> 터미널에서 배포: `cd app` 후 `vercel --prod` 실행. (이미 Vercel 프로젝트가 연결된 상태라면 빌드 후 URL이 출력됩니다.)
 
 ---
 
@@ -39,7 +43,8 @@ vercel --prod
 
 이메일 로그인(매직 링크)이 동작하려면 Supabase에 앱 URL을 등록해야 합니다.
 
-1. [Supabase Dashboard](https://supabase.com/dashboard) → 프로젝트 선택
+1. [Supabase Dashboard](https://supabase.com/dashboard) → 프로젝트 선택  
+   (현재 프로젝트: https://supabase.com/dashboard/project/owfwezypyolfimgfngru )
 2. **Authentication** → **URL Configuration**
 3. 아래 값 설정:
 
