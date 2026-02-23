@@ -15,28 +15,33 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
-    // Hash from magic link is processed by client; getSession() then returns the session
+    const authUserEmail = (u: { email?: string | null }) => u.email ?? '';
+    const finishWithProfile = (profile: User, goToHome: boolean) => {
+      if (cancelled) return;
+      setUser(profile);
+      setStatus('done');
+      router.replace(goToHome ? ROUTES.HOME : ROUTES.PROFILE_SETUP);
+    };
     const resolveSession = () =>
-      supabase.auth.getSession().then(({ data: { session } }) => {
-      if (cancelled || !session?.user) {
-        setStatus('error');
-        router.replace(ROUTES.LOGIN);
-        return;
-      }
-      const authUser = session.user;
-      supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .single()
-        .then(({ data: row }) => {
-          if (cancelled) return;
-          const email = authUser.email ?? '';
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (cancelled || !session?.user) {
+          setStatus('error');
+          router.replace(ROUTES.LOGIN);
+          return;
+        }
+        const authUser = session.user;
+        const email = authUserEmail(authUser);
+        try {
+          const { data: row } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', authUser.id)
+            .single();
           const profile: User = row
             ? {
                 id: String(row.id),
-                email: row.email ?? email,
-                phone_number: row.phone_number ?? undefined,
+                email: (row as { email?: string }).email ?? email,
+                phone_number: (row as { phone_number?: string }).phone_number ?? undefined,
                 nickname: row.nickname ?? '',
                 profile_image_url: row.profile_image_url ?? null,
                 school: row.school ?? null,
@@ -58,30 +63,25 @@ export default function AuthCallbackPage() {
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               };
-          setUser(profile);
-          setStatus('done');
-          router.replace(row?.nickname ? ROUTES.HOME : ROUTES.PROFILE_SETUP);
-        })
-        .catch(() => {
-          if (cancelled) return;
-          const email = authUser.email ?? '';
-          setUser({
-            id: String(authUser.id),
-            email,
-            nickname: '',
-            profile_image_url: null,
-            school: null,
-            challenge_create_remaining: 3,
-            fcm_token: null,
-            status: 'active',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
-          setStatus('done');
-          router.replace(ROUTES.PROFILE_SETUP);
-        });
+          finishWithProfile(profile, !!row?.nickname);
+        } catch {
+          finishWithProfile(
+            {
+              id: String(authUser.id),
+              email,
+              nickname: '',
+              profile_image_url: null,
+              school: null,
+              challenge_create_remaining: 3,
+              fcm_token: null,
+              status: 'active',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            false
+          );
+        }
       });
-    // Give client a tick to parse hash from redirect
     const t = setTimeout(resolveSession, 100);
     return () => {
       cancelled = true;
