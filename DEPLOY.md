@@ -17,7 +17,9 @@ git push -u origin main
 
 1. **Git 설정 페이지 열기**: [Vercel 프로젝트 Git 설정](https://vercel.com/halos-projects-24428129/app/settings/git)
 2. **Connect Git Repository**에서 **GitHub** 선택 후 저장소 `axz-halo/h2h` 연결
-3. **Root Directory**를 `app`으로 설정 (프로젝트 설정 → General에서 Root Directory = `app`)
+3. **Root Directory**를 **`app`**으로 설정 (필수)
+   - [General 설정](https://vercel.com/halos-projects-24428129/app/settings) → **Root Directory** → Edit → `app` 입력 → Save
+   - 이걸 설정하지 않으면 "No Next.js version detected" 오류가 납니다.
 4. **Environment Variables**에 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` 추가
 
 연결 후에는 `git push origin main` 할 때마다 자동으로 배포됩니다.
