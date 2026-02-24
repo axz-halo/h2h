@@ -13,6 +13,15 @@ git push -u origin main
 
 ## 2. Vercel 배포
 
+### GitHub ↔ Vercel 연결 (한 번만 하면 push 시 자동 배포)
+
+1. **Git 설정 페이지 열기**: [Vercel 프로젝트 Git 설정](https://vercel.com/halos-projects-24428129/app/settings/git)
+2. **Connect Git Repository**에서 **GitHub** 선택 후 저장소 `axz-halo/h2h` 연결
+3. **Root Directory**를 `app`으로 설정 (프로젝트 설정 → General에서 Root Directory = `app`)
+4. **Environment Variables**에 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` 추가
+
+연결 후에는 `git push origin main` 할 때마다 자동으로 배포됩니다.
+
 ### 방법 A: Vercel 대시보드 (권장)
 
 1. [vercel.com](https://vercel.com) 로그인 → **Add New** → **Project**
