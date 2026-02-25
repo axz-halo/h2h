@@ -69,16 +69,23 @@ export default function SplashScreen() {
   }, [router, setUser, setLoading]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh bg-gradient-to-b from-rose-50 to-white">
+    <div className="flex flex-col items-center justify-center min-h-dvh bg-gradient-to-b from-rose-50 via-[#FFF5F6] to-white relative overflow-hidden">
+      {/* Decorative floating elements */}
+      <span className="absolute top-[18%] left-[12%] text-2xl opacity-30 animate-float" style={{ animationDelay: '0s' }} aria-hidden>💕</span>
+      <span className="absolute top-[22%] right-[15%] text-xl opacity-25 animate-float" style={{ animationDelay: '0.8s' }} aria-hidden>✨</span>
+      <span className="absolute bottom-[32%] left-[18%] text-lg opacity-20 animate-float" style={{ animationDelay: '1.2s' }} aria-hidden>💝</span>
+      <span className="absolute bottom-[28%] right-[12%] text-2xl opacity-30 animate-float" style={{ animationDelay: '0.4s' }} aria-hidden>🫶</span>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="flex flex-col items-center gap-6"
+        className="flex flex-col items-center gap-6 relative z-10"
       >
         <motion.div
-          animate={{ scale: [1, 1.15, 1] }}
+          animate={{ scale: [1, 1.12, 1] }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+          className="rounded-full p-1 animate-gentle-glow"
         >
           <Heart className="w-16 h-16 text-primary fill-primary" strokeWidth={1.5} />
         </motion.div>

@@ -65,27 +65,32 @@ export default function ProfileSetupPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-dvh px-6 pt-16 pb-8">
+    <div className="flex flex-col min-h-dvh px-6 pt-16 pb-8 bg-gradient-to-b from-rose-50/40 to-bg">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1 className="text-2xl font-bold text-text mb-8">
+        <h1 className="text-2xl font-bold text-text mb-2">
           프로필을 설정해주세요
         </h1>
+        <p className="text-sm text-text-muted mb-8">
+          친구들이 나를 더 잘 찾을 수 있게요 👋
+        </p>
 
         {/* Avatar placeholder */}
         <div className="flex justify-center mb-10">
-          <button
+          <motion.button
             type="button"
-            className="relative w-24 h-24 rounded-full bg-surface border-2 border-dashed border-border-strong flex items-center justify-center active:scale-95 transition-transform"
+            className="relative w-24 h-24 rounded-full bg-surface border-2 border-dashed border-primary/30 flex items-center justify-center active:scale-95 transition-transform shadow-sm ring-4 ring-primary/5"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
           >
             <Camera className="w-7 h-7 text-text-muted" strokeWidth={1.5} />
-            <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-md">
-              <span className="text-white text-xs font-bold">+</span>
+            <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-md text-white text-xs font-bold">
+              +
             </span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Inputs */}
@@ -123,7 +128,7 @@ export default function ProfileSetupPage() {
           loading={isSubmitting}
           onClick={handleSubmit}
         >
-          완료
+          완료 ✨
         </Button>
       </motion.div>
     </div>

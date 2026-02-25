@@ -27,7 +27,7 @@ export function AppBar({
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 bg-bg/90 backdrop-blur-lg',
+        'sticky top-0 z-30 bg-bg/90 backdrop-blur-lg border-b border-border/80',
         className
       )}
     >

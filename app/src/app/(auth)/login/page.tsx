@@ -56,7 +56,7 @@ function LoginForm() {
   const handleBack = () => setSent(false);
 
   return (
-    <div className="flex flex-col min-h-dvh px-6 pt-4 pb-8">
+    <div className="flex flex-col min-h-dvh px-6 pt-4 pb-8 bg-gradient-to-b from-rose-50/50 to-bg">
       <AnimatePresence mode="wait">
         {!sent ? (
           <motion.div
@@ -67,11 +67,19 @@ function LoginForm() {
             transition={{ duration: 0.25 }}
             className="flex-1 flex flex-col"
           >
-            <h1 className="text-2xl font-bold text-text mt-4 mb-2">
+            <motion.div
+              className="w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center mt-6 mb-4"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+            >
+              <span className="text-3xl" aria-hidden>✉️</span>
+            </motion.div>
+            <h1 className="text-2xl font-bold text-text mt-2 mb-2">
               이메일로 시작하기
             </h1>
             <p className="text-sm text-text-muted mb-8">
-              로그인 링크를 보내드려요
+              로그인 링크를 보내드릴게요 🫶
             </p>
 
             <Input
@@ -104,11 +112,19 @@ function LoginForm() {
             transition={{ duration: 0.25 }}
             className="flex-1 flex flex-col"
           >
-            <h1 className="text-2xl font-bold text-text mt-4 mb-2">
+            <motion.div
+              className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mt-6 mb-4"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+            >
+              <span className="text-3xl" aria-hidden>📬</span>
+            </motion.div>
+            <h1 className="text-2xl font-bold text-text mt-2 mb-2">
               이메일을 확인해주세요
             </h1>
             <p className="text-sm text-text-muted mb-8">
-              <span className="font-medium text-text">{email}</span>로 보낸 링크를 클릭하면 로그인됩니다.
+              <span className="font-medium text-text">{email}</span>로 보낸 링크를 클릭하면 로그인돼요 ✨
             </p>
 
             <div className="flex-1" />

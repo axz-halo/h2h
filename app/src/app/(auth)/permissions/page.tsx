@@ -21,7 +21,7 @@ export default function PermissionsPage() {
   }, [router]);
 
   return (
-    <div className="flex flex-col min-h-dvh px-6 pt-16 pb-8">
+    <div className="flex flex-col min-h-dvh px-6 pt-16 pb-8 bg-gradient-to-b from-rose-50/50 to-bg">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -30,19 +30,21 @@ export default function PermissionsPage() {
       >
         <div className="flex-1 flex flex-col items-center text-center">
           <motion.div
-            className="w-28 h-28 rounded-full bg-rose-50 flex items-center justify-center mb-8"
+            className="w-28 h-28 rounded-full bg-rose-50 flex items-center justify-center mb-8 border border-rose-100 shadow-sm"
             animate={{ scale: [1, 1.06, 1] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
           >
-            <span className="text-6xl" aria-hidden>🔔</span>
+            <span className="text-6xl select-none" aria-hidden>🔔</span>
           </motion.div>
 
           <h2 className="text-xl font-bold text-text mb-3">
             알림을 받을까요?
           </h2>
-          <p className="text-base text-text-secondary leading-relaxed max-w-[300px] mb-8">
-            누군가 당신을 지목하면 바로 알려드릴게요!{'\n'}
-            실시간으로 챌린지 현황을 놓치지 마세요.
+          <p className="text-base text-text-secondary leading-relaxed max-w-[300px] mb-2">
+            누군가 당신을 지목하면 바로 알려드릴게요!
+          </p>
+          <p className="text-sm text-text-muted mb-8">
+            실시간 챌린지 현황을 놓치지 마세요 ✨
           </p>
 
           <Button size="lg" onClick={handleAllow} className="w-full max-w-[280px]">
@@ -53,7 +55,7 @@ export default function PermissionsPage() {
         <button
           type="button"
           onClick={handleSkip}
-          className="text-sm text-text-muted py-2 self-center"
+          className="text-sm text-text-muted py-2 self-center hover:text-text-secondary transition-colors cursor-pointer"
         >
           나중에 하기
         </button>

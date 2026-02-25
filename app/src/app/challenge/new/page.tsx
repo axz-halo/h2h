@@ -48,6 +48,10 @@ export default function QuestionSelectPage() {
     <div className="flex flex-col min-h-dvh">
       <AppBar showBack title="어떤 질문으로 시작할까요?" />
 
+      <p className="px-4 pt-1 text-sm text-text-muted">
+        마음에 드는 질문을 골라보세요 ✨
+      </p>
+
       <div className="px-4 pt-2 pb-3 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           {TABS.map((tab) => {
@@ -164,7 +168,7 @@ export default function QuestionSelectPage() {
             disabled={!selectedQuestion}
             onClick={handleNext}
           >
-            다음
+            다음 ✨
           </Button>
           <div className="h-[env(safe-area-inset-bottom)]" />
         </div>

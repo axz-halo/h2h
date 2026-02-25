@@ -46,11 +46,15 @@ export default function HomePage() {
       <AppBar showLogo showSettings />
 
       {showNotificationBanner && notificationDenied && (
-        <div className="mx-4 mt-2 flex items-start gap-3 rounded-[14px] bg-surface border border-border-strong p-3">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 mt-2 flex items-start gap-3 rounded-[14px] bg-surface border border-border-strong p-3 shadow-sm"
+        >
           <Bell size={18} className="text-primary shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-text">
-              알림을 켜면 누군가 당신을 지목했을 때 바로 알 수 있어요!
+              🔔 알림을 켜면 누군가 당신을 지목했을 때 바로 알 수 있어요!
             </p>
             <button
               type="button"
@@ -67,7 +71,7 @@ export default function HomePage() {
           >
             <X size={16} className="text-text-muted" />
           </button>
-        </div>
+        </motion.div>
       )}
 
       <main className="flex-1 px-4 pb-4">
@@ -111,7 +115,7 @@ export default function HomePage() {
               className={
                 'pointer-events-auto flex items-center gap-2 h-12 pl-4 pr-5 rounded-full shadow-[var(--shadow-lg)] ' +
                 'bg-primary text-white font-semibold text-sm transition-all active:scale-95 cursor-pointer ' +
-                'disabled:opacity-40 disabled:cursor-not-allowed mb-2'
+                'disabled:opacity-40 disabled:cursor-not-allowed mb-2 hover:shadow-xl'
               }
             >
               <Plus size={18} strokeWidth={2.5} />
@@ -133,31 +137,39 @@ function EmptyState({
 }) {
   return (
     <motion.div
-      className="flex flex-col items-center justify-center text-center flex-1 min-h-[60dvh]"
+      className="flex flex-col items-center justify-center text-center flex-1 min-h-[60dvh] relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
+      {/* Decorative floating emojis */}
+      <span className="absolute top-[12%] left-[10%] text-2xl opacity-40 animate-float" style={{ animationDelay: '0s' }} aria-hidden>💕</span>
+      <span className="absolute top-[10%] right-[14%] text-xl opacity-35 animate-float" style={{ animationDelay: '0.6s' }} aria-hidden>✨</span>
+      <span className="absolute bottom-[38%] left-[8%] text-lg opacity-30 animate-float" style={{ animationDelay: '1s' }} aria-hidden>🫶</span>
+      <span className="absolute bottom-[35%] right-[10%] text-2xl opacity-40 animate-float" style={{ animationDelay: '0.3s' }} aria-hidden>💝</span>
+
       <motion.div
-        className="w-24 h-24 rounded-full bg-surface flex items-center justify-center mb-5"
-        animate={{ scale: [1, 1.08, 1], rotate: [0, 5, -5, 0] }}
+        className="w-24 h-24 rounded-full bg-surface flex items-center justify-center mb-5 border border-primary/10 shadow-sm relative z-10"
+        animate={{ scale: [1, 1.06, 1], rotate: [0, 4, -4, 0] }}
         transition={{ duration: 3, repeat: Infinity, repeatDelay: 0.5 }}
       >
-        <span className="text-5xl" aria-hidden>
+        <span className="text-5xl select-none" aria-hidden>
           💝
         </span>
       </motion.div>
 
-      <p className="text-lg font-bold text-text mb-1">
+      <p className="text-lg font-bold text-text mb-1 relative z-10">
         아직 진행 중인 챌린지가 없어요
       </p>
-      <p className="text-sm text-text-muted mb-8 leading-relaxed">
+      <p className="text-sm text-text-muted mb-8 leading-relaxed relative z-10">
         마음을 전할 친구를 지목해보세요 ✨
       </p>
 
-      <Button size="lg" onClick={onStart} disabled={remaining <= 0}>
-        새 챌린지 시작하기 ({remaining}/{MAX_CHALLENGE_CREATE})
-      </Button>
+      <motion.div className="relative z-10" whileHover={{ scale: remaining > 0 ? 1.02 : 1 }} whileTap={{ scale: remaining > 0 ? 0.98 : 1 }}>
+        <Button size="lg" onClick={onStart} disabled={remaining <= 0}>
+          새 챌린지 시작하기 ({remaining}/{MAX_CHALLENGE_CREATE})
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }

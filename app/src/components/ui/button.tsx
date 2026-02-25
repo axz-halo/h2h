@@ -22,7 +22,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:opacity-40 disabled:cursor-not-allowed',
           'active:scale-[0.97]',
           {
-            'bg-primary text-white hover:bg-primary-dark shadow-sm': variant === 'primary',
+            'bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md': variant === 'primary',
             'bg-surface text-primary border border-primary/20 hover:bg-surface-hover': variant === 'secondary',
             'bg-transparent text-text-secondary hover:bg-surface': variant === 'ghost',
             'bg-error text-white hover:opacity-90': variant === 'danger',

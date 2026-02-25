@@ -18,18 +18,21 @@ interface ChallengeCardProps {
   challenge: ChallengeWithMyStatus;
 }
 
-const STATUS_CONFIG: Record<MyStatus, { label: (order?: number) => string; className: string }> = {
+const STATUS_CONFIG: Record<MyStatus, { label: (order?: number) => string; className: string; emoji: string }> = {
   my_turn: {
     label: () => '내 차례!',
     className: 'bg-primary/10 text-primary font-bold',
+    emoji: '✨',
   },
   completed: {
     label: (order) => (order != null ? `${order}번째로 참여 완료` : '참여 완료'),
     className: 'bg-border text-text-muted font-medium',
+    emoji: '✅',
   },
   waiting: {
     label: () => '대기 중',
     className: 'bg-warning/10 text-warning font-medium',
+    emoji: '⏳',
   },
 };
 
@@ -61,12 +64,16 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
   };
 
   return (
-    <motion.div whileTap={canTap ? { scale: 0.98 } : undefined}>
+    <motion.div
+      whileTap={canTap ? { scale: 0.98 } : undefined}
+      whileHover={canTap ? { y: -2 } : undefined}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+    >
       <Card
         interactive={canTap}
         className={cn(
-          'relative overflow-hidden p-3 min-h-[120px] flex flex-col',
-          canTap && 'border border-primary/20'
+          'relative overflow-hidden p-3 min-h-[120px] flex flex-col transition-shadow duration-200',
+          canTap && 'border border-primary/20 shadow-md hover:shadow-lg'
         )}
         onClick={handleTap}
       >
@@ -100,7 +107,7 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
 
           <div
             className={cn(
-              'inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md w-fit text-xs font-semibold tabular-nums',
+              'inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg w-fit text-xs font-semibold tabular-nums',
               isEnded ? 'bg-border text-text-muted' : 'bg-primary/10 text-primary'
             )}
           >
@@ -121,10 +128,11 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
             )}
             <span
               className={cn(
-                'text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap',
+                'text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-0.5',
                 status.className
               )}
             >
+              <span aria-hidden>{status.emoji}</span>
               {statusLabel}
             </span>
             {canTap && (

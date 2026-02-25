@@ -83,11 +83,11 @@ export default function OnboardingPage() {
             className="flex flex-col items-center text-center w-full"
           >
             <motion.div
-              className={`w-32 h-32 rounded-full ${slide.bg} flex items-center justify-center mb-10`}
+              className={`w-32 h-32 rounded-full ${slide.bg} flex items-center justify-center mb-10 shadow-sm border border-white/60`}
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
             >
-              <span className="text-6xl" aria-hidden>
+              <span className="text-6xl select-none" aria-hidden>
                 {slide.emoji}
               </span>
             </motion.div>
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
         </button>
 
         <Button size="md" onClick={handleNext}>
-          {isLast ? '시작하기' : '다음'}
+          {isLast ? '시작하기 ✨' : '다음'}
         </Button>
       </div>
     </div>
