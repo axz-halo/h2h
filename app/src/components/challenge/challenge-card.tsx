@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Users, ChevronRight } from 'lucide-react';
+import { Users, ChevronRight, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useCountdown } from '@/hooks/use-countdown';
+import { useToastStore } from '@/stores/toast-store';
+import { shareChallenge } from '@/lib/share';
 import { cn, truncateText } from '@/lib/utils';
 import { ROUTES, MAX_CHALLENGE_PARTICIPANTS } from '@/lib/constants';
 import type { ChallengeWithMyStatus } from '@/types';
@@ -33,6 +35,7 @@ const STATUS_CONFIG: Record<MyStatus, { label: (order?: number) => string; class
 
 export function ChallengeCard({ challenge }: ChallengeCardProps) {
   const router = useRouter();
+  const addToast = useToastStore((s) => s.addToast);
   const { timeLeft, isExpired } = useCountdown(challenge.expires_at);
   const isFull = challenge.participant_count >= MAX_CHALLENGE_PARTICIPANTS;
   const isEnded = isExpired || isFull;
@@ -40,14 +43,21 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
   const questionText = challenge.question?.question_text ?? '';
   const category = challenge.question?.category;
   const categoryColor = category ? CATEGORY_MAP[category]?.color : undefined;
+  const categoryIcon = category ? CATEGORY_MAP[category]?.icon : undefined;
   const maxParticipants = challenge.max_participants ?? MAX_CHALLENGE_PARTICIPANTS;
-  const participantCountText = `${challenge.participant_count} / ${maxParticipants}명 참여 중`;
+  const participantCountText = `${challenge.participant_count} / ${maxParticipants}명`;
   const statusLabel = status.label(challenge.my_participant_order);
   const isHost = challenge.my_role === 'host';
   const canTap = challenge.my_status === 'my_turn' && !isFull;
 
   const handleTap = () => {
     if (canTap) router.push(ROUTES.CHALLENGE_NOMINATE(challenge.id));
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const result = await shareChallenge({ challengeId: challenge.id, questionText });
+    if (result === 'copied') addToast('링크가 복사되었어요!', 'success');
   };
 
   return (
@@ -60,7 +70,6 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
         )}
         onClick={handleTap}
       >
-        {/* 카테고리 색 띠 */}
         {categoryColor && (
           <div
             className="absolute top-0 left-0 right-0 h-1 shrink-0"
@@ -69,7 +78,22 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
           />
         )}
 
+        {isHost && (
+          <button
+            type="button"
+            onClick={handleShare}
+            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center z-10 active:scale-90 transition-transform cursor-pointer"
+            aria-label="공유"
+          >
+            <Share2 size={13} className="text-text-muted" />
+          </button>
+        )}
+
         <div className="flex-1 flex flex-col min-w-0 pt-1">
+          {categoryIcon && (
+            <span className="text-lg mb-1" aria-hidden>{categoryIcon}</span>
+          )}
+
           <p className="text-[13px] font-semibold text-text leading-snug line-clamp-2 break-keep">
             {truncateText(questionText, 22)}
           </p>

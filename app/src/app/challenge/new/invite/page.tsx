@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Check } from 'lucide-react';
+import { Search, Check, Share2 } from 'lucide-react';
 import { AppBar } from '@/components/layout/app-bar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -11,6 +11,7 @@ import { useChallengeStore } from '@/stores/challenge-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useToastStore } from '@/stores/toast-store';
 import { useFriends } from '@/hooks/use-friends';
+import { shareChallenge } from '@/lib/share';
 import { MOCK_USER } from '@/lib/mock-data';
 import { ROUTES, MAX_CHALLENGE_CREATE } from '@/lib/constants';
 import { cn, truncateText } from '@/lib/utils';
@@ -28,7 +29,9 @@ export default function InvitePage() {
   const { addToast } = useToastStore();
   const [search, setSearch] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const [sending, setSending] = useState(false);
+  const createdChallengeId = useRef<string | null>(null);
 
   const remaining = user?.challenge_create_remaining ?? MOCK_USER.challenge_create_remaining;
   const questionText = selectedQuestion?.question_text ?? '질문을 선택해주세요';
@@ -51,7 +54,6 @@ export default function InvitePage() {
   const handleConfirm = async () => {
     if (!canSubmit || !selectedPassTarget || !selectedQuestion) return;
     setSending(true);
-    const name = selectedPassTarget.nickname;
     try {
       const res = await fetch('/api/challenges', {
         method: 'POST',
@@ -69,15 +71,30 @@ export default function InvitePage() {
         setShowConfirm(false);
         return;
       }
+      const data = await res.json().catch(() => ({}));
+      createdChallengeId.current = data?.id ?? null;
     } catch {
       addToast('네트워크 오류가 났어요', 'error');
       setSending(false);
       setShowConfirm(false);
       return;
     }
-    reset();
     setSending(false);
     setShowConfirm(false);
+    setShowShareSheet(true);
+  };
+
+  const handleShare = async () => {
+    const cId = createdChallengeId.current;
+    if (!cId || !selectedQuestion) return;
+    const result = await shareChallenge({ challengeId: cId, questionText: selectedQuestion.question_text });
+    if (result === 'copied') addToast('링크가 복사되었어요!', 'success');
+  };
+
+  const handleGoHome = () => {
+    const name = selectedPassTarget?.nickname ?? '';
+    reset();
+    setShowShareSheet(false);
     router.push(ROUTES.HOME);
     setTimeout(() => addToast(`${name}님에게 질문을 넘겼어요!`, 'success'), 300);
   };
@@ -181,6 +198,25 @@ export default function InvitePage() {
           </Button>
           <Button fullWidth loading={sending} onClick={handleConfirm}>
             시작하기
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={showShareSheet}
+        onClose={handleGoHome}
+        title="챌린지가 시작됐어요! 🎉"
+      >
+        <p className="text-sm text-text-secondary leading-relaxed mb-6">
+          친구들에게 알려서 더 많은 사람이 참여하게 해볼까요?
+        </p>
+        <div className="flex flex-col gap-2.5">
+          <Button fullWidth onClick={handleShare}>
+            <Share2 size={16} className="mr-2" />
+            친구에게 공유하기
+          </Button>
+          <Button variant="secondary" fullWidth onClick={handleGoHome}>
+            홈으로 돌아가기
           </Button>
         </div>
       </Modal>

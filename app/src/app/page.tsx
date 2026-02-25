@@ -1,38 +1,72 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME, ROUTES } from '@/lib/constants';
 import { useAuthStore } from '@/stores/auth-store';
-import { ROUTES } from '@/lib/constants';
+import { createClient } from '@/lib/supabase/client';
 import type { User } from '@/types';
 
 const STORAGE_KEY = 'h2h_user';
+const MIN_SPLASH_MS = 1200;
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { isAuthenticated, isLoading, setUser, setLoading } = useAuthStore();
+  const { setUser, setLoading } = useAuthStore();
+  const resolved = useRef(false);
 
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
-      if (raw) {
-        const user = JSON.parse(raw) as User;
-        if (user?.id && user?.nickname) setUser(user);
+    if (resolved.current) return;
+    resolved.current = true;
+
+    const start = Date.now();
+
+    const navigate = (path: string) => {
+      const elapsed = Date.now() - start;
+      const delay = Math.max(0, MIN_SPLASH_MS - elapsed);
+      setTimeout(() => router.replace(path), delay);
+    };
+
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          const res = await fetch('/api/users/me', { credentials: 'include' });
+          if (res.ok) {
+            const profile: User = await res.json();
+            setUser(profile);
+            setLoading(false);
+            navigate(profile.nickname?.trim() ? ROUTES.HOME : ROUTES.PROFILE_SETUP);
+            return;
+          }
+        }
+      } catch {
+        // Supabase unavailable — fall through to localStorage
       }
-    } catch (_) {}
-    setLoading(false);
-  }, [setUser, setLoading]);
 
-  useEffect(() => {
-    if (isLoading) return;
-    const timer = setTimeout(() => {
-      router.replace(isAuthenticated ? ROUTES.HOME : ROUTES.ONBOARDING);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [router, isAuthenticated, isLoading]);
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+        if (raw) {
+          const user = JSON.parse(raw) as User;
+          if (user?.id && user?.nickname) {
+            setUser(user);
+            setLoading(false);
+            navigate(ROUTES.HOME);
+            return;
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      setLoading(false);
+      navigate(ROUTES.ONBOARDING);
+    })();
+  }, [router, setUser, setLoading]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh bg-gradient-to-b from-rose-50 to-white">

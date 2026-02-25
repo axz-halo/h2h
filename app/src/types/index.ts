@@ -125,11 +125,17 @@ export interface Friend {
   phone_last4?: string;
 }
 
-export const CATEGORY_MAP: Record<QuestionCategory, { label: string; emoji: string; color: string }> = {
-  crush: { label: '설렘', emoji: '#설렘', color: '#E11D48' },
-  bestie: { label: '찐친', emoji: '#찐친', color: '#2563EB' },
-  tmi: { label: 'TMI', emoji: '#TMI', color: '#7C3AED' },
-  thanks: { label: '고마움', emoji: '#고마움', color: '#059669' },
-  whatif: { label: '만약에', emoji: '#만약에', color: '#D97706' },
-  real: { label: '솔직히', emoji: '#솔직히', color: '#DB2777' },
+export const CATEGORY_MAP: Record<QuestionCategory, {
+  label: string;
+  emoji: string;
+  color: string;
+  icon: string;
+  gradient: string;
+}> = {
+  crush:  { label: '설렘',   emoji: '#설렘',   color: '#E11D48', icon: '💕', gradient: 'linear-gradient(135deg, #FFE4E6, #FECDD3)' },
+  bestie: { label: '찐친',   emoji: '#찐친',   color: '#2563EB', icon: '👯', gradient: 'linear-gradient(135deg, #DBEAFE, #BFDBFE)' },
+  tmi:    { label: 'TMI',    emoji: '#TMI',    color: '#7C3AED', icon: '🤔', gradient: 'linear-gradient(135deg, #EDE9FE, #DDD6FE)' },
+  thanks: { label: '고마움', emoji: '#고마움', color: '#059669', icon: '🫶', gradient: 'linear-gradient(135deg, #D1FAE5, #A7F3D0)' },
+  whatif: { label: '만약에', emoji: '#만약에', color: '#D97706', icon: '🌀', gradient: 'linear-gradient(135deg, #FEF3C7, #FDE68A)' },
+  real:   { label: '솔직히', emoji: '#솔직히', color: '#DB2777', icon: '🔥', gradient: 'linear-gradient(135deg, #FCE7F3, #FBCFE8)' },
 };

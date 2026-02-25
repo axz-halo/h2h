@@ -32,26 +32,36 @@ export default function ProfileSetupPage() {
     && nickname.length <= NICKNAME_MAX_LENGTH
     && NICKNAME_REGEX.test(nickname);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid || isSubmitting) return;
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const base = currentUser ?? MOCK_USER;
-      const user = {
-        ...base,
-        nickname,
-        school: school || null,
-      };
-      setUser(user);
-      setProfileComplete();
-      if (pendingChallengeId) {
-        setPendingChallengeId(null);
-        router.replace(ROUTES.CHALLENGE_NOMINATE(pendingChallengeId));
+    try {
+      const res = await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ nickname, school: school || '' }),
+      });
+      if (res.ok) {
+        const profile = await res.json();
+        setUser(profile);
       } else {
-        router.replace(ROUTES.HOME);
+        const base = currentUser ?? MOCK_USER;
+        setUser({ ...base, nickname, school: school || null });
       }
-    }, 400);
+    } catch {
+      const base = currentUser ?? MOCK_USER;
+      setUser({ ...base, nickname, school: school || null });
+    }
+
+    setProfileComplete();
+    if (pendingChallengeId) {
+      setPendingChallengeId(null);
+      router.replace(ROUTES.CHALLENGE_NOMINATE(pendingChallengeId));
+    } else {
+      router.replace(ROUTES.HOME);
+    }
   };
 
   return (
