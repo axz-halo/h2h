@@ -24,7 +24,8 @@ export function useChallenges(): {
   };
 
   useEffect(() => {
-    fetchChallenges();
+    const t = setTimeout(fetchChallenges, 0);
+    return () => clearTimeout(t);
   }, []);
 
   return { challenges, loading, refetch: fetchChallenges };

@@ -24,10 +24,13 @@ export default function HomePage() {
   const hasChallenges = challenges.length > 0;
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'denied') {
-      setNotificationDenied(true);
-      setShowNotificationBanner(true);
-    }
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'denied') {
+        setNotificationDenied(true);
+        setShowNotificationBanner(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const goToNewChallenge = () => {

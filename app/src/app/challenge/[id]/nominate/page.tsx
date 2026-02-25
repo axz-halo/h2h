@@ -23,7 +23,6 @@ export default function NominatePage() {
   const searchParams = useSearchParams();
   const challengeId = params.id as string;
   const challenge = MOCK_CHALLENGES.find((c) => c.id === challengeId);
-  const isFull = challenge && challenge.participant_count >= MAX_CHALLENGE_PARTICIPANTS;
   const isInvitee = searchParams.get('from') === 'invite';
 
   useEffect(() => {
@@ -45,11 +44,31 @@ export default function NominatePage() {
   const [search, setSearch] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [sending, setSending] = useState(false);
+  const [challengeData, setChallengeData] = useState<{
+    participant_count: number;
+    max_participants: number;
+    participant_ids: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (!challengeId || challengeId === 'new') return;
+    fetch(`/api/challenges/${challengeId}`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setChallengeData({
+        participant_count: d.participant_count ?? 0,
+        max_participants: d.max_participants ?? 30,
+        participant_ids: d.participant_ids ?? [],
+      }))
+      .catch(() => {});
+  }, [challengeId]);
 
   const { friends: friendsFromApi } = useFriends(search);
   const isAfterLetterMode = letterAfterNomineeDraft?.challengeId === challengeId;
   const excludeReceiverId = isAfterLetterMode ? letterAfterNomineeDraft?.receiverId : null;
-  const participantIds = MOCK_CHALLENGE_PARTICIPANT_IDS[challengeId] ?? [];
+  const participantCount = challengeData?.participant_count ?? challenge?.participant_count ?? 0;
+  const maxParticipants = challengeData?.max_participants ?? MAX_CHALLENGE_PARTICIPANTS;
+  const isFull = participantCount >= maxParticipants;
+  const participantIds = challengeData?.participant_ids ?? MOCK_CHALLENGE_PARTICIPANT_IDS[challengeId] ?? [];
 
   const questionText = isAfterLetterMode
     ? '체인을 이어갈 친구를 선택해주세요'
@@ -77,32 +96,52 @@ export default function NominatePage() {
     if (!selectedFriend) return;
     setSending(true);
 
-    await new Promise((r) => setTimeout(r, 800));
+    const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include' as const };
 
-    if (isAfterLetterMode) {
-      setLetterAfterNomineeDraft(null);
-      reset();
-      setSending(false);
-      setShowConfirm(false);
-      router.push(ROUTES.HOME);
-      setTimeout(() => {
-        addToast('편지를 보냈고, 다음 주자에게 차례를 넘겼어요!', 'success');
-      }, 300);
-      return;
+    if (isAfterLetterMode && letterAfterNomineeDraft) {
+      const letterRes = await fetch('/api/letters', {
+        ...opts,
+        body: JSON.stringify({
+          challenge_id: challengeId,
+          receiver_id: letterAfterNomineeDraft.receiverId,
+          content: letterAfterNomineeDraft.content,
+        }),
+      });
+      if (!letterRes.ok) {
+        addToast('편지 전송에 실패했어요', 'error');
+        setSending(false);
+        setShowConfirm(false);
+        return;
+      }
     }
 
-    const isMutual = selectedFriend.id === MUTUAL_TRIGGER_ID;
+    const nomRes = await fetch('/api/nominations', {
+      ...opts,
+      body: JSON.stringify({ challenge_id: challengeId, nominee_id: selectedFriend.id }),
+    });
+    if (!nomRes.ok) {
+      const err = await nomRes.json().catch(() => ({}));
+      addToast(err?.error ?? '전송에 실패했어요', 'error');
+      setSending(false);
+      setShowConfirm(false);
+      return;
+    }
+    const { is_mutual } = await nomRes.json().catch(() => ({ is_mutual: false }));
 
+    setLetterAfterNomineeDraft(null);
     reset();
     setSending(false);
     setShowConfirm(false);
 
-    if (isMutual) {
+    if (is_mutual) {
       router.push(ROUTES.CHALLENGE_MUTUAL(challengeId));
     } else {
       router.push(ROUTES.HOME);
       setTimeout(() => {
-        addToast(`${selectedFriend.nickname}님 차례로 넘겼어요!`, 'success');
+        addToast(
+          isAfterLetterMode ? '편지를 보냈고, 다음 주자에게 차례를 넘겼어요!' : `${selectedFriend.nickname}님 차례로 넘겼어요!`,
+          'success'
+        );
       }, 300);
     }
   };

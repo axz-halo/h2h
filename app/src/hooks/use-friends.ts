@@ -10,7 +10,9 @@ export function useFriends(search = ''): { friends: Friend[]; loading: boolean }
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(true);
+    }, 0);
     const q = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : '';
     fetch(`/api/friends${q}`)
       .then((res) => res.json())
@@ -23,6 +25,7 @@ export function useFriends(search = ''): { friends: Friend[]; loading: boolean }
       });
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [search]);
 

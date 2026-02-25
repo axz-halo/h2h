@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 
-function FloatingHeart({ delay, x, size }: { delay: number; x: number; size: number }) {
+function FloatingHeart({ delay, x, size, duration }: { delay: number; x: number; size: number; duration: number }) {
   return (
     <motion.div
       className="absolute text-primary/60"
       initial={{ y: '100vh', x, opacity: 0, scale: 0 }}
       animate={{ y: '-20vh', opacity: [0, 1, 1, 0], scale: [0, 1, 1, 0.5] }}
       transition={{
-        duration: 3 + Math.random() * 2,
+        duration,
         delay,
         repeat: Infinity,
         ease: 'easeOut',
@@ -39,15 +39,14 @@ export default function MutualCelebrationPage() {
     return () => clearTimeout(timer);
   }, [navigateToLetter]);
 
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 12 }, (_, i) => ({
-        id: i,
-        delay: i * 0.3,
-        x: Math.random() * 320 - 160,
-        size: 12 + Math.random() * 16,
-      })),
-    []
+  const [particles] = useState(() =>
+    Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      delay: i * 0.3,
+      x: Math.random() * 320 - 160,
+      size: 12 + Math.random() * 16,
+      duration: 3 + Math.random() * 2,
+    }))
   );
 
   return (
@@ -60,7 +59,7 @@ export default function MutualCelebrationPage() {
       transition={{ duration: 0.5 }}
     >
       {particles.map((p) => (
-        <FloatingHeart key={p.id} delay={p.delay} x={p.x} size={p.size} />
+        <FloatingHeart key={p.id} delay={p.delay} x={p.x} size={p.size} duration={p.duration} />
       ))}
 
       <motion.div

@@ -9,8 +9,8 @@ import { Modal } from '@/components/ui/modal';
 import { useChallengeStore } from '@/stores/challenge-store';
 import { LETTER_MIN_LENGTH, LETTER_MAX_LENGTH, ROUTES } from '@/lib/constants';
 
-const LETTER_RECEIVER_ID = 'user-3';
-const LETTER_RECEIVER_NAME = '민서';
+const DEFAULT_RECEIVER_ID = 'user-3';
+const DEFAULT_RECEIVER_NAME = '민서';
 
 const getDraftKey = (id: string) => `h2h_letter_draft_${id}`;
 
@@ -22,20 +22,35 @@ export default function LetterWritingPage() {
   const [content, setContent] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [receiver, setReceiver] = useState({ id: DEFAULT_RECEIVER_ID, name: DEFAULT_RECEIVER_NAME });
   const draftChecked = useRef(false);
 
   const isValid = content.length >= LETTER_MIN_LENGTH;
 
   useEffect(() => {
+    fetch(`/api/challenges/${challengeId}/letter-receiver`, { credentials: 'include' })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.receiver_id) setReceiver({ id: data.receiver_id, name: data.receiver_name || DEFAULT_RECEIVER_NAME });
+      })
+      .catch(() => {});
+  }, [challengeId]);
+
+  useEffect(() => {
     if (draftChecked.current || typeof window === 'undefined') return;
     draftChecked.current = true;
-    try {
-      const raw = localStorage.getItem(getDraftKey(challengeId));
-      if (raw) {
-        const saved = raw.slice(0, LETTER_MAX_LENGTH);
-        if (saved.length > 0) setShowDraftModal(true);
+    const timer = setTimeout(() => {
+      try {
+        const raw = localStorage.getItem(getDraftKey(challengeId));
+        if (raw) {
+          const saved = raw.slice(0, LETTER_MAX_LENGTH);
+          if (saved.length > 0) setShowDraftModal(true);
+        }
+      } catch {
+        // ignore
       }
-    } catch (_) {}
+    }, 0);
+    return () => clearTimeout(timer);
   }, [challengeId]);
 
   useEffect(() => {
@@ -43,7 +58,9 @@ export default function LetterWritingPage() {
     const t = setTimeout(() => {
       try {
         localStorage.setItem(getDraftKey(challengeId), content);
-      } catch (_) {}
+      } catch {
+        // ignore
+      }
     }, 500);
     return () => clearTimeout(t);
   }, [challengeId, content]);
@@ -59,30 +76,37 @@ export default function LetterWritingPage() {
       const raw = localStorage.getItem(getDraftKey(challengeId));
       if (raw) setContent(raw.slice(0, LETTER_MAX_LENGTH));
       localStorage.removeItem(getDraftKey(challengeId));
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     setShowDraftModal(false);
   }, [challengeId]);
 
   const handleDiscardDraft = useCallback(() => {
     try {
       localStorage.removeItem(getDraftKey(challengeId));
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     setShowDraftModal(false);
   }, [challengeId]);
 
   const handleNext = useCallback(() => {
     if (!isValid || isSending) return;
+    setIsSending(true);
     try {
       localStorage.removeItem(getDraftKey(challengeId));
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     setLetterAfterNomineeDraft({
       challengeId,
-      receiverId: LETTER_RECEIVER_ID,
-      receiverName: LETTER_RECEIVER_NAME,
+      receiverId: receiver.id,
+      receiverName: receiver.name,
       content,
     });
     router.push(ROUTES.CHALLENGE_NOMINATE(challengeId));
-  }, [isValid, isSending, challengeId, content, setLetterAfterNomineeDraft, router]);
+  }, [isValid, isSending, challengeId, content, receiver.id, receiver.name, setLetterAfterNomineeDraft, router]);
 
   return (
     <div className="flex flex-col min-h-dvh bg-bg">
@@ -109,7 +133,7 @@ export default function LetterWritingPage() {
         transition={{ duration: 0.35 }}
       >
         <p className="text-base text-text-secondary mb-5 leading-relaxed">
-          <span className="font-semibold text-text">{LETTER_RECEIVER_NAME}</span>님에게
+          <span className="font-semibold text-text">{receiver.name}</span>님에게
           <br />
           진심을 담아 편지를 보내보세요.
         </p>

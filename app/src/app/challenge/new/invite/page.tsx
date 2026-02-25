@@ -49,10 +49,32 @@ export default function InvitePage() {
   };
 
   const handleConfirm = async () => {
-    if (!canSubmit || !selectedPassTarget) return;
+    if (!canSubmit || !selectedPassTarget || !selectedQuestion) return;
     setSending(true);
-    await new Promise((r) => setTimeout(r, 600));
     const name = selectedPassTarget.nickname;
+    try {
+      const res = await fetch('/api/challenges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          question_id: selectedQuestion.id,
+          first_pass_user_id: selectedPassTarget.id,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        addToast(err?.error ?? '챌린지 생성에 실패했어요', 'error');
+        setSending(false);
+        setShowConfirm(false);
+        return;
+      }
+    } catch {
+      addToast('네트워크 오류가 났어요', 'error');
+      setSending(false);
+      setShowConfirm(false);
+      return;
+    }
     reset();
     setSending(false);
     setShowConfirm(false);

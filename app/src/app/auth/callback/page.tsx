@@ -15,74 +15,48 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
-    const authUserEmail = (u: { email?: string | null }) => u.email ?? '';
-    const finishWithProfile = (profile: User, goToHome: boolean) => {
+    const finish = (profile: User, goToHome: boolean) => {
       if (cancelled) return;
       setUser(profile);
       setStatus('done');
       router.replace(goToHome ? ROUTES.HOME : ROUTES.PROFILE_SETUP);
     };
-    const resolveSession = () =>
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (cancelled || !session?.user) {
-          setStatus('error');
-          router.replace(ROUTES.LOGIN);
+    const run = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled || !session?.user) {
+        setStatus('error');
+        router.replace(ROUTES.LOGIN);
+        return;
+      }
+      try {
+        const res = await fetch('/api/users/me', { credentials: 'include' });
+        if (res.ok) {
+          const profile: User = await res.json();
+          finish(profile, !!(profile.nickname?.trim()));
           return;
         }
-        const authUser = session.user;
-        const email = authUserEmail(authUser);
-        try {
-          const { data: row } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', authUser.id)
-            .single();
-          const profile: User = row
-            ? {
-                id: String(row.id),
-                email: (row as { email?: string }).email ?? email,
-                phone_number: (row as { phone_number?: string }).phone_number ?? undefined,
-                nickname: row.nickname ?? '',
-                profile_image_url: row.profile_image_url ?? null,
-                school: row.school ?? null,
-                challenge_create_remaining: row.challenge_create_remaining ?? 3,
-                fcm_token: row.fcm_token ?? null,
-                status: row.status ?? 'active',
-                created_at: row.created_at ?? new Date().toISOString(),
-                updated_at: row.updated_at ?? new Date().toISOString(),
-              }
-            : {
-                id: String(authUser.id),
-                email,
-                nickname: '',
-                profile_image_url: null,
-                school: null,
-                challenge_create_remaining: 3,
-                fcm_token: null,
-                status: 'active' as const,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              };
-          finishWithProfile(profile, !!row?.nickname);
-        } catch {
-          finishWithProfile(
-            {
-              id: String(authUser.id),
-              email,
-              nickname: '',
-              profile_image_url: null,
-              school: null,
-              challenge_create_remaining: 3,
-              fcm_token: null,
-              status: 'active',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            false
-          );
-        }
-      });
-    const t = setTimeout(resolveSession, 100);
+      } catch {
+        // fallback
+      }
+      const u = session.user;
+      const email = u.email ?? '';
+      finish(
+        {
+          id: String(u.id),
+          email,
+          nickname: '',
+          profile_image_url: null,
+          school: null,
+          challenge_create_remaining: 3,
+          fcm_token: null,
+          status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        false
+      );
+    };
+    const t = setTimeout(run, 100);
     return () => {
       cancelled = true;
       clearTimeout(t);

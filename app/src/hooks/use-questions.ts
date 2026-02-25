@@ -10,7 +10,7 @@ export function useQuestions(): { questions: Question[]; loading: boolean } {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    const timer = setTimeout(() => setLoading(true), 0);
     fetch('/api/questions')
       .then((res) => res.json())
       .then((data: Question[]) => {
@@ -26,6 +26,7 @@ export function useQuestions(): { questions: Question[]; loading: boolean } {
       });
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, []);
 

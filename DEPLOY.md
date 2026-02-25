@@ -20,7 +20,9 @@ git push -u origin main
 3. **Root Directory**를 **`app`**으로 설정 (필수)
    - [General 설정](https://vercel.com/halos-projects-24428129/app/settings) → **Root Directory** → Edit → `app` 입력 → Save
    - 이걸 설정하지 않으면 "No Next.js version detected" 오류가 납니다.
-4. **Environment Variables**에 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` 추가
+4. **Environment Variables**에 아래 변수 추가 (라이브 서버 연동 필수):
+   - `NEXT_PUBLIC_SUPABASE_URL` = Supabase 프로젝트 URL (예: `https://xxx.supabase.co`)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` 또는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` = Supabase Anon/Public key
 
 연결 후에는 `git push origin main` 할 때마다 자동으로 배포됩니다.
 
@@ -74,3 +76,30 @@ vercel --prod
 ---
 
 이후 프로덕션에서 이메일 로그인 → 매직 링크 클릭 → `/auth/callback`으로 돌아와 로그인이 완료됩니다.
+
+---
+
+## 4. 라이브 배포 + 서버 연동 체크리스트
+
+서버까지 연동해 라이브로 올릴 때 확인할 것:
+
+1. **Supabase 마이그레이션 적용**  
+   Supabase Dashboard → SQL Editor에서 아래 순서로 실행 (이미 적용했다면 생략):
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_seed_questions.sql`
+   - `supabase/migrations/003_v2_1_pass_and_max_participants.sql`
+   - `supabase/migrations/004_users_email.sql`
+
+2. **Vercel 환경 변수**
+   - `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` 또는 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Anon key
+
+3. **Supabase Auth URL**
+   - Site URL / Redirect URLs에 프로덕션 도메인 등록 (위 3번 참고)
+
+4. **동작 흐름**
+   - 로그인 → `/api/users/me`로 프로필 upsert 후 홈/프로필 이동
+   - 챌린지 생성 → `POST /api/challenges` (질문 + 패스 1명)
+   - 지목 → `POST /api/nominations` (상호 지목 시 mutual 페이지)
+   - 편지 → `POST /api/letters` (편지 수신자 = 나를 지목한 사람, API에서 자동 조회)
+   - 친구 목록 → `GET /api/friends` (contacts 매칭 + 앱 유저)
