@@ -5,12 +5,12 @@ import { MOCK_QUESTIONS } from '@/lib/mock-data';
 import type { Question } from '@/types';
 import type { QuestionCategory } from '@/types';
 
-const VALID_CATEGORIES: QuestionCategory[] = ['romance', 'friendship', 'curiosity', 'gratitude'];
+const VALID_CATEGORIES: QuestionCategory[] = ['crush', 'bestie', 'tmi', 'thanks', 'whatif', 'real'];
 
 function mapCategory(category: string): QuestionCategory {
   return VALID_CATEGORIES.includes(category as QuestionCategory)
     ? (category as QuestionCategory)
-    : 'romance';
+    : 'crush';
 }
 
 export async function GET() {

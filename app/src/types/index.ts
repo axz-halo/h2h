@@ -21,7 +21,7 @@ export interface Contact {
   synced_at: string;
 }
 
-export type QuestionCategory = 'romance' | 'friendship' | 'curiosity' | 'gratitude';
+export type QuestionCategory = 'crush' | 'bestie' | 'tmi' | 'thanks' | 'whatif' | 'real';
 
 export interface Question {
   id: string;
@@ -126,8 +126,10 @@ export interface Friend {
 }
 
 export const CATEGORY_MAP: Record<QuestionCategory, { label: string; emoji: string; color: string }> = {
-  romance: { label: '설렘', emoji: '#설렘', color: '#E11D48' },
-  friendship: { label: '우정', emoji: '#우정', color: '#2563EB' },
-  curiosity: { label: '궁금', emoji: '#궁금', color: '#7C3AED' },
-  gratitude: { label: '감사', emoji: '#감사', color: '#059669' },
+  crush: { label: '설렘', emoji: '#설렘', color: '#E11D48' },
+  bestie: { label: '찐친', emoji: '#찐친', color: '#2563EB' },
+  tmi: { label: 'TMI', emoji: '#TMI', color: '#7C3AED' },
+  thanks: { label: '고마움', emoji: '#고마움', color: '#059669' },
+  whatif: { label: '만약에', emoji: '#만약에', color: '#D97706' },
+  real: { label: '솔직히', emoji: '#솔직히', color: '#DB2777' },
 };

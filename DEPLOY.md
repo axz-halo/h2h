@@ -46,7 +46,8 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel --prod
 ```
 
-배포 후 나온 **Production URL** (예: `https://your-app.vercel.app` 또는 `https://app-xxx.vercel.app`)을 아래 Supabase 설정에 사용합니다.
+배포 후 나온 **Production URL**을 아래 Supabase 설정에 사용합니다.  
+(현재 프로덕션: **https://h2h-psi.vercel.app/**)
 
 > 터미널에서 배포: `cd app` 후 `vercel --prod` 실행. (이미 Vercel 프로젝트가 연결된 상태라면 빌드 후 URL이 출력됩니다.)
 
@@ -63,8 +64,8 @@ vercel --prod
 
 | 항목 | 값 |
 |------|-----|
-| **Site URL** | `https://YOUR_VERCEL_APP.vercel.app` (프로덕션 주소) |
-| **Redirect URLs** | 다음 두 줄 추가:<br>• `https://YOUR_VERCEL_APP.vercel.app/**`<br>• `https://YOUR_VERCEL_APP.vercel.app/auth/callback` |
+| **Site URL** | `https://h2h-psi.vercel.app` |
+| **Redirect URLs** | 다음 추가:<br>• `https://h2h-psi.vercel.app/**`<br>• `https://h2h-psi.vercel.app/auth/callback` |
 
 4. **Save** 클릭
 

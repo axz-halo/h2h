@@ -1,8 +1,18 @@
--- Seed question data for Heart to Hearts
--- Categories: crush, bestie, tmi, thanks, whatif, real
+-- Gen-Z 카테고리 재구성: 4종 → 6종, 질문 전면 교체
+-- crush(설렘), bestie(찐친), tmi(TMI), thanks(고마움), whatif(만약에), real(솔직히)
+
+-- 1) 기존 질문 전부 삭제 (challenges FK는 question_id 참조만, cascade 없음)
+delete from public.questions;
+
+-- 2) category CHECK 제약조건 변경
+alter table public.questions drop constraint if exists questions_category_check;
+alter table public.questions add constraint questions_category_check
+  check (category in ('crush', 'bestie', 'tmi', 'thanks', 'whatif', 'real'));
+
+-- 3) 새 질문 102개 INSERT
 
 insert into public.questions (category, question_text) values
-  -- #설렘 (crush) - 18개
+  -- ============ #설렘 (crush) - 18개 ============
   ('crush', '썸 탄다면 제일 먼저 떠오르는 사람은?'),
   ('crush', '프사 바꾸면 제일 먼저 확인할 것 같은 사람은?'),
   ('crush', '이 사람이랑 같은 반이면 학교 매일 가고 싶을 사람은?'),
@@ -22,7 +32,7 @@ insert into public.questions (category, question_text) values
   ('crush', '매일 봐도 안 질릴 것 같은 사람은?'),
   ('crush', '솔직히 내 마음 들킬까봐 조심하게 되는 사람은?'),
 
-  -- #찐친 (bestie) - 18개
+  -- ============ #찐친 (bestie) - 18개 ============
   ('bestie', '새벽 3시에 ''나와'' 하면 진짜 나올 친구는?'),
   ('bestie', '내 폰 검사해도 괜찮은 친구는?'),
   ('bestie', '같이 살면 진짜 재밌을 것 같은 친구는?'),
@@ -42,7 +52,7 @@ insert into public.questions (category, question_text) values
   ('bestie', '나 대신 발표해줄 것 같은 찐친은?'),
   ('bestie', '인생 힘들 때 전화 한 통이면 달려올 친구는?'),
 
-  -- #TMI (tmi) - 18개
+  -- ============ #TMI (tmi) - 18개 ============
   ('tmi', '전생에 뭐였을지 제일 궁금한 사람은?'),
   ('tmi', 'MBTI 안 물어봐도 다 아는 것 같은 사람은?'),
   ('tmi', '잠버릇이 제일 궁금한 사람은?'),
@@ -62,7 +72,7 @@ insert into public.questions (category, question_text) values
   ('tmi', '가방 안에 뭐 들었는지 궁금한 사람은?'),
   ('tmi', '최근 빠진 것(최애)이 궁금한 사람은?'),
 
-  -- #고마움 (thanks) - 16개
+  -- ============ #고마움 (thanks) - 16개 ============
   ('thanks', '존재 자체가 힐링인 사람은?'),
   ('thanks', '아무 말 없이 옆에만 있어도 위로가 되는 사람은?'),
   ('thanks', '올해 진짜 없었으면 큰일 났을 사람은?'),
@@ -80,7 +90,7 @@ insert into public.questions (category, question_text) values
   ('thanks', '덕분에 올해가 좋았다고 말하고 싶은 사람은?'),
   ('thanks', '나한테 좋은 영향을 준 사람은?'),
 
-  -- #만약에 (whatif) - 16개
+  -- ============ #만약에 (whatif) - 16개 ============
   ('whatif', '좀비 아포칼립스에서 같이 살아남고 싶은 사람은?'),
   ('whatif', '무인도에 딱 한 명 데려간다면?'),
   ('whatif', '타임머신 타고 같이 과거로 가고 싶은 사람은?'),
@@ -98,7 +108,7 @@ insert into public.questions (category, question_text) values
   ('whatif', '내가 아이돌이면 팬 해줄 것 같은 사람은?'),
   ('whatif', '비밀지도를 발견하면 같이 모험 떠날 사람은?'),
 
-  -- #솔직히 (real) - 16개
+  -- ============ #솔직히 (real) - 16개 ============
   ('real', '솔직히 질투 난 적 있는 사람은?'),
   ('real', '처음 봤을 때 ''이 사람 뭐지?'' 했던 사람은?'),
   ('real', '같이 있으면 나도 모르게 신경 쓰이는 사람은?'),

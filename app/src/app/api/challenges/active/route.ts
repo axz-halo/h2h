@@ -4,10 +4,10 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { MOCK_CHALLENGES } from '@/lib/mock-data';
 import type { ChallengeWithMyStatus, Question, QuestionCategory } from '@/types';
 
-const VALID_CATEGORIES: QuestionCategory[] = ['romance', 'friendship', 'curiosity', 'gratitude'];
+const VALID_CATEGORIES: QuestionCategory[] = ['crush', 'bestie', 'tmi', 'thanks', 'whatif', 'real'];
 
 function mapCategory(c: string): QuestionCategory {
-  return VALID_CATEGORIES.includes(c as QuestionCategory) ? (c as QuestionCategory) : 'romance';
+  return VALID_CATEGORIES.includes(c as QuestionCategory) ? (c as QuestionCategory) : 'crush';
 }
 
 /**

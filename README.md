@@ -1,5 +1,7 @@
 # Heart to Hearts
 
+**라이브:** [https://h2h-psi.vercel.app/](https://h2h-psi.vercel.app/)
+
 Next.js 앱은 **`app/`** 폴더에 있습니다.
 
 ## Vercel 배포 시 필수 설정

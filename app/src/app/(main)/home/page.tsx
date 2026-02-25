@@ -73,16 +73,25 @@ export default function HomePage() {
       <main className="flex-1 px-4 pb-4">
         {hasChallenges ? (
           <motion.div
-            className="flex flex-col gap-3 pt-2"
+            className="grid grid-cols-2 gap-3 pt-2"
             initial="hidden"
             animate="visible"
             variants={{
               hidden: {},
-              visible: { transition: { staggerChildren: 0.07 } },
+              visible: { transition: { staggerChildren: 0.06 } },
             }}
           >
             {challenges.map((challenge) => (
-              <ChallengeCard key={challenge.id} challenge={challenge} />
+              <motion.div
+                key={challenge.id}
+                variants={{
+                  hidden: { opacity: 0, y: 12 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <ChallengeCard challenge={challenge} />
+              </motion.div>
             ))}
           </motion.div>
         ) : (
