@@ -37,10 +37,13 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
   const isEnded = isExpired || isFull;
   const status = STATUS_CONFIG[challenge.my_status];
   const questionText = challenge.question?.question_text ?? '';
+  const maxParticipants = challenge.max_participants ?? MAX_CHALLENGE_PARTICIPANTS;
   const participantLabel = challenge.participant_display
     ? `${challenge.participant_display} 참여`
     : `${challenge.participant_count}명 참여`;
+  const participantCountText = `${challenge.participant_count} / ${maxParticipants}명 참여 중`;
   const statusLabel = status.label(challenge.my_participant_order);
+  const isHost = challenge.my_role === 'host';
   const canTap = challenge.my_status === 'my_turn' && !isFull;
 
   const handleTap = () => {
@@ -88,11 +91,16 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
 
             <div className="flex items-center gap-1 mt-2 text-xs text-text-muted">
               <Users size={12} strokeWidth={2} />
-              <span>{participantLabel}</span>
+              <span>{participantCountText}</span>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-1.5 shrink-0">
+            {isHost && (
+              <span className="text-xs px-2.5 py-1 rounded-full whitespace-nowrap bg-primary/10 text-primary font-medium">
+                내가 만든 챌린지
+              </span>
+            )}
             <span
               className={cn(
                 'text-xs px-2.5 py-1 rounded-full whitespace-nowrap',

@@ -190,7 +190,7 @@ export default function NominatePage() {
             {isFull
               ? '참여 인원이 가득 찼어요'
               : selectedFriend
-                ? `${selectedFriend.nickname}님 차례로 넘기기`
+                ? `${selectedFriend.nickname}님에게 보내기`
                 : '친구를 선택해주세요'}
           </Button>
           <div className="h-[env(safe-area-inset-bottom)]" />
@@ -200,7 +200,7 @@ export default function NominatePage() {
       <Modal
         open={showConfirm}
         onClose={() => !sending && setShowConfirm(false)}
-        title={isAfterLetterMode ? '편지 전송 및 다음 차례' : '차례 넘기기'}
+        title={isAfterLetterMode ? '편지 전송 및 다음 차례' : '이 사람에게 보낼까요?'}
       >
         <p className="text-sm text-text-secondary leading-relaxed mb-6">
           {isAfterLetterMode ? (
@@ -212,9 +212,9 @@ export default function NominatePage() {
             </>
           ) : (
             <>
-              이 질문에 답할 다음 사람을 <span className="font-bold text-text">{selectedFriend?.nickname}</span>님으로 할까요?
+              질문: {selectedQuestion?.question_text}
               <br />
-              넘긴 후에는 취소할 수 없어요.
+              대상: <span className="font-bold text-text">{selectedFriend?.nickname}</span>님
             </>
           )}
         </p>
@@ -232,7 +232,7 @@ export default function NominatePage() {
             loading={sending}
             onClick={handleConfirmSend}
           >
-            넘기기
+            보내기
           </Button>
         </div>
       </Modal>

@@ -12,7 +12,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useToastStore } from '@/stores/toast-store';
 import { useFriends } from '@/hooks/use-friends';
 import { MOCK_USER } from '@/lib/mock-data';
-import { ROUTES, MIN_INVITEES, MAX_INVITEES, MAX_CHALLENGE_CREATE } from '@/lib/constants';
+import { ROUTES, MAX_CHALLENGE_CREATE } from '@/lib/constants';
 import { cn, truncateText } from '@/lib/utils';
 import type { Friend } from '@/types';
 
@@ -20,8 +20,8 @@ export default function InvitePage() {
   const router = useRouter();
   const {
     selectedQuestion,
-    selectedInvitees,
-    toggleInvitee,
+    selectedPassTarget,
+    setSelectedPassTarget,
     reset,
   } = useChallengeStore();
   const { user } = useAuthStore();
@@ -32,58 +32,37 @@ export default function InvitePage() {
 
   const remaining = user?.challenge_create_remaining ?? MOCK_USER.challenge_create_remaining;
   const questionText = selectedQuestion?.question_text ?? '질문을 선택해주세요';
-  const canSubmit = selectedInvitees.length >= MIN_INVITEES && selectedInvitees.length <= MAX_INVITEES;
+  const canSubmit = selectedPassTarget !== null;
 
   const { friends: filteredFriends } = useFriends(search);
 
   const appFriends = filteredFriends.filter((f) => f.is_app_user);
   const contactFriends = filteredFriends.filter((f) => !f.is_app_user);
 
-  const handleToggle = (friend: Friend) => {
-    const isSelected = selectedInvitees.some((f) => f.id === friend.id);
-    if (isSelected) {
-      toggleInvitee(friend);
-    } else if (selectedInvitees.length < MAX_INVITEES) {
-      toggleInvitee(friend);
-    }
+  const handleSelect = (friend: Friend) => {
+    setSelectedPassTarget(selectedPassTarget?.id === friend.id ? null : friend);
   };
 
-  const handleInviteClick = () => {
+  const handlePassClick = () => {
     if (!canSubmit) return;
     setShowConfirm(true);
   };
 
   const handleConfirm = async () => {
-    if (!canSubmit || selectedInvitees.length === 0) return;
+    if (!canSubmit || !selectedPassTarget) return;
     setSending(true);
     await new Promise((r) => setTimeout(r, 600));
-    const names = selectedInvitees.map((f) => f.nickname);
-    const first = names[0];
-    const rest = names.length - 1;
-    const message =
-      rest > 0 ? `${first}님 외 ${rest}명을 초대했어요!` : `${first}님을 초대했어요!`;
+    const name = selectedPassTarget.nickname;
     reset();
     setSending(false);
     setShowConfirm(false);
     router.push(ROUTES.HOME);
-    setTimeout(() => addToast(message, 'success'), 300);
+    setTimeout(() => addToast(`${name}님에게 질문을 넘겼어요!`, 'success'), 300);
   };
 
-  const inviteButtonLabel = (() => {
-    if (selectedInvitees.length === 0) return `${MIN_INVITEES}~${MAX_INVITEES}명을 골라주세요`;
-    if (selectedInvitees.length === 1) return `${selectedInvitees[0].nickname}님 초대하기`;
-    const first = selectedInvitees[0].nickname;
-    const rest = selectedInvitees.length - 1;
-    return `${first}님 외 ${rest}명 초대하기`;
-  })();
-
-  const confirmNamesText = (() => {
-    if (selectedInvitees.length <= 2) {
-      return selectedInvitees.map((f) => f.nickname).join(', ');
-    }
-    const [a, b, ...rest] = selectedInvitees;
-    return `${a.nickname}, ${b.nickname} 외 ${rest.length}명`;
-  })();
+  const passButtonLabel = selectedPassTarget
+    ? `${selectedPassTarget.nickname}님에게 질문 넘기기`
+    : '친구를 선택해주세요';
 
   if (!selectedQuestion) {
     router.replace(ROUTES.CHALLENGE_NEW);
@@ -94,8 +73,11 @@ export default function InvitePage() {
     <div className="flex flex-col min-h-dvh">
       <AppBar showBack title={truncateText(questionText, 18)} />
 
-      <p className="px-4 pt-3 pb-2 text-sm text-text-muted">
-        이 질문에 답할 친구 <span className="font-semibold text-primary">{MIN_INVITEES}~{MAX_INVITEES}명</span>을 골라주세요.
+      <p className="px-4 pt-3 pb-1 text-sm font-semibold text-text">
+        누구에게 이 질문을 넘길까요?
+      </p>
+      <p className="px-4 pb-3 text-sm text-text-muted">
+        선택한 친구에게 이 질문이 전달됩니다. 당신의 선택은 비밀이에요.
       </p>
 
       <div className="px-4 pb-3">
@@ -118,30 +100,21 @@ export default function InvitePage() {
         </div>
       </div>
 
-      {selectedInvitees.length > 0 && (
-        <p className="px-4 pb-2 text-xs text-text-muted">
-          {selectedInvitees.length}명 선택됨 {selectedInvitees.length < MIN_INVITEES && `(최소 ${MIN_INVITEES}명)`}
-          {selectedInvitees.length > MAX_INVITEES && `(최대 ${MAX_INVITEES}명)`}
-        </p>
-      )}
-
       <main className="flex-1 px-4 pb-28 overflow-y-auto">
         {appFriends.length > 0 && (
-          <InviteFriendSection
+          <PassFriendSection
             title="Heart to Hearts 친구"
             friends={appFriends}
-            selectedIds={selectedInvitees.map((f) => f.id)}
-            onToggle={handleToggle}
-            maxReached={selectedInvitees.length >= MAX_INVITEES}
+            selectedId={selectedPassTarget?.id ?? null}
+            onSelect={handleSelect}
           />
         )}
         {contactFriends.length > 0 && (
-          <InviteFriendSection
+          <PassFriendSection
             title="주소록 친구"
             friends={contactFriends}
-            selectedIds={selectedInvitees.map((f) => f.id)}
-            onToggle={handleToggle}
-            maxReached={selectedInvitees.length >= MAX_INVITEES}
+            selectedId={selectedPassTarget?.id ?? null}
+            onSelect={handleSelect}
           />
         )}
         {filteredFriends.length === 0 && (
@@ -157,9 +130,9 @@ export default function InvitePage() {
             fullWidth
             size="lg"
             disabled={!canSubmit}
-            onClick={handleInviteClick}
+            onClick={handlePassClick}
           >
-            {inviteButtonLabel}
+            {passButtonLabel}
           </Button>
           <div className="h-[env(safe-area-inset-bottom)]" />
         </div>
@@ -168,10 +141,10 @@ export default function InvitePage() {
       <Modal
         open={showConfirm}
         onClose={() => !sending && setShowConfirm(false)}
-        title="챌린지 시작할까요?"
+        title="질문을 넘길까요?"
       >
         <p className="text-sm text-text-secondary leading-relaxed mb-6">
-          이 질문으로 <span className="font-bold text-text">{confirmNamesText}</span>님을 초대할까요?
+          이 질문을 <span className="font-bold text-text">{selectedPassTarget?.nickname}</span>님에게 넘길까요?
           <br />
           <span className="text-text-muted">남은 생성 횟수: {remaining}/{MAX_CHALLENGE_CREATE}</span>
         </p>
@@ -193,18 +166,16 @@ export default function InvitePage() {
   );
 }
 
-function InviteFriendSection({
+function PassFriendSection({
   title,
   friends,
-  selectedIds,
-  onToggle,
-  maxReached,
+  selectedId,
+  onSelect,
 }: {
   title: string;
   friends: Friend[];
-  selectedIds: string[];
-  onToggle: (f: Friend) => void;
-  maxReached: boolean;
+  selectedId: string | null;
+  onSelect: (f: Friend) => void;
 }) {
   return (
     <div className="mb-5">
@@ -214,8 +185,7 @@ function InviteFriendSection({
       <div className="flex flex-col gap-1">
         <AnimatePresence>
           {friends.map((friend) => {
-            const isSelected = selectedIds.includes(friend.id);
-            const disabled = !isSelected && maxReached;
+            const isSelected = selectedId === friend.id;
             return (
               <motion.button
                 key={friend.id}
@@ -224,11 +194,9 @@ function InviteFriendSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2 }}
-                onClick={() => !disabled && onToggle(friend)}
-                disabled={disabled}
+                onClick={() => onSelect(friend)}
                 className={cn(
-                  'flex items-center gap-3 w-full px-3 py-3 rounded-[14px] transition-colors text-left',
-                  disabled && !isSelected ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                  'flex items-center gap-3 w-full px-3 py-3 rounded-[14px] transition-colors text-left cursor-pointer',
                   isSelected ? 'bg-surface border border-primary/20' : 'hover:bg-surface/60'
                 )}
               >

@@ -6,9 +6,6 @@ export const CHALLENGE_DURATION_HOURS = 48;
 export const MAX_CHALLENGE_PARTICIPANTS = 30;
 /** 30명 도달 시 사용자에게 보여줄 메시지 */
 export const CHALLENGE_FULL_MESSAGE = '이번 챌린지는 30명이 모두 참여하여 종료되었습니다.';
-/** Host가 챌린지 생성 시 초대할 최소/최대 인원 */
-export const MIN_INVITEES = 3;
-export const MAX_INVITEES = 5;
 export const MAX_CHALLENGE_CREATE = 3;
 export const LETTER_MIN_LENGTH = 10;
 export const LETTER_MAX_LENGTH = 500;
@@ -33,7 +30,7 @@ export const ROUTES = {
   RESULTS: '/results',
   MYPAGE: '/mypage',
   CHALLENGE_NEW: '/challenge/new',
-  /** Host 전용: 첫 참여자 3~5명 초대 (질문 선택 후) */
+  /** Host 전용: 질문을 넘길 1명 선택 (패스) */
   CHALLENGE_INVITE: '/challenge/new/invite',
   CHALLENGE_NOMINATE: (id: string) => `/challenge/${id}/nominate`,
   CHALLENGE_CONFIRM: (id: string) => `/challenge/${id}/confirm`,

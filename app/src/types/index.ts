@@ -42,6 +42,8 @@ export interface Challenge {
   creator?: User;
   status: ChallengeStatus;
   participant_count: number;
+  /** 최대 참여자 수 (기본 30). v2.1 */
+  max_participants?: number;
   created_at: string;
   expires_at: string;
 }
@@ -49,6 +51,8 @@ export interface Challenge {
 /** 홈 카드용: 내 참여 순서(몇 번째로 참여 완료), 참여자 표시 문구(예: "서준 외 7명") */
 export interface ChallengeWithMyStatus extends Challenge {
   my_status: 'my_turn' | 'completed' | 'waiting';
+  /** host: 생성자(패스만 함), participant: 지목으로 참여. v2.1 */
+  my_role?: 'host' | 'participant';
   /** 1-based. 지목 완료 시 "N번째로 참여 완료" 표시용 */
   my_participant_order?: number;
   /** "OOO 외 N명 참여" 형태 표시용 (첫 참여자 닉네임 또는 대표 이름) */
